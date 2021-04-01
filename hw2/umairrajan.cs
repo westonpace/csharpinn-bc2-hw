@@ -1,93 +1,85 @@
 ﻿using System;
 using System.Linq;
 
-namespace ConsoleApp2
+namespace RecipeApp
 {
-    class Program
+    class Chapter2
     {
-        static void SortArray(int[] arrayToSort)
+        public int[] SortedArray(int[] input)
         {
-            Array.Sort(arrayToSort);
-
-            Console.WriteLine("Sorted Array");
-
-            foreach (var item in arrayToSort)
+            for (int i = 1; i < input.Length; i++)
             {
-                Console.WriteLine(item);
-            }
-        }
-
-        static string[] AddElementInTheStartOfArray(string[] oldArray, string newElement)
-        {
-            string[] newArray = new string[oldArray.Length + 1];
-            newArray[0] = newElement;
-            Array.Copy(oldArray, 0, newArray, 1, oldArray.Length);
-
-            return newArray;
-        }
-
-        static string[] AddElementInTheEndOfArray(string[] oldArray, string newElement)
-        {
-            string[] newArray = new string[oldArray.Length + 1];
-            Array.Copy(oldArray, newArray, oldArray.Length);
-            newArray[newArray.Length - 1] = newElement;
-
-            return newArray;
-        }
-
-        static string[] AddElementInAnyPositionOfArray(string[] oldArray, string newElement, int position)
-        {
-            string[] newArray = new string[oldArray.Length + 1];
-            for (int i = 0; i < newArray.Length; i++)
-            {
-                if (i < position - 1)
+                var currentValue = input[i];
+                var previousValue = input[i - 1];
+                if (currentValue - previousValue < 0)
                 {
-                    newArray[i] = oldArray[i];
+                    input[i] = previousValue;
+                    input[i - 1] = currentValue;
+                    SortedArray(input);
                 }
-                else if (i == position - 1)
-                    newArray[i] = newElement;
-                else
-                    newArray[i] = oldArray[i - 1];
             }
+            return input;
 
-            return newArray;
+        }
+        public int[] AddElementAtStartOfArray(int[] input, int element)
+        {
+            var result = new int[input.Length + 1];
+            result[0] = element;
+            input.CopyTo(result, 1);
+            return result;
         }
 
-        static string[] RemoveElementFromStartOfArray(string[] oldArray)
+        public int[] AddElementAtEndOfArray(int[] input, int element)
         {
-            string[] newArray = oldArray.Skip(1).ToArray();
-            return newArray;
+            var result = new int[input.Length + 1];
+            input.CopyTo(result, 0);
+            result[result.Length - 1] = element;
+            return result;
+        }
+        /// <summary>
+        /// Cuts the array from start position to end position. inclusive of element at end position
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="endposition"></param>
+        /// <param name="startPosition"></param>
+        /// <returns></returns>
+        private static int[] CutArray(int[] input, int endposition, int startPosition = 0)
+        {
+            return input.Where((x, i) => i >= startPosition && i <= endposition - 1).ToArray();
+        }
+        public int[] AddElementAtProvidedPosition(int[] input, int element, int position)
+        {
+            var modifiedArrayStart = CutArray(input, position);
+            var modifiedArrayEnd = CutArray(input, input.Length, position);
+
+            var result = modifiedArrayStart.Concat(new int[] { element }).Concat(modifiedArrayEnd);
+            return result.ToArray();
         }
 
-        static string[] RemoveElementFromEndOfArray(string[] oldArray)
+        public int[] RemoveElementAtTheStart(int[] input)
         {
-            Array.Resize(ref oldArray, oldArray.Length - 1);
-            return oldArray;
+            return CutArray(input, input.Length, 1);
         }
 
-        static string[] RemoveElementFromGivenIndexOfArray(string[] oldArray, int indexToRemove)
+        public int[] RemoveElementAtTheEnd(int[] input)
         {
-            oldArray = oldArray.Where((source, index) => index != indexToRemove - 1).ToArray();
-            return oldArray;
+            return CutArray(input, input.Length - 1, 0);
         }
 
-        static void checkIfUsernameAndPasswordMatches()
+        public int[] RemoveElementAtProvidedPosition(int[] input, int position)
         {
-            string adminUserName = "admin";
-            string adminPassword = "admin123";
-            Console.WriteLine("Enter your username");
-            string username = Console.ReadLine().ToLower();
-            Console.WriteLine("Enter your password");
-            string password = Console.ReadLine();
+            var modifiedArrayStart = CutArray(input, position);
+            var modifiedArrayEnd = CutArray(input, input.Length, position + 1);
+            return modifiedArrayStart.Concat(modifiedArrayEnd).ToArray();
+        }
 
-            if (username == adminUserName && password == adminPassword)
+        public void Login(string userName, string password)
+        {
+            if (userName.Equals(password, StringComparison.OrdinalIgnoreCase))
             {
                 Console.WriteLine("Logged In!");
             }
-            else
-            {
-                Console.WriteLine("Wrong username or password");
-            }
+
         }
     }
 }
